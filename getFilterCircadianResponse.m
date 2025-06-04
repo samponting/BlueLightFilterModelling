@@ -1,21 +1,18 @@
-function C = getFilterCircadianResponse(transmission)
+function C = getFilterCircadianResponse(transmission,DRcurve,d65,dataKey,T_CIE_Y10,vLam,T_xyz,ref,spectra)
 
 addpath(genpath([pwd '/spectra_calibrated']))
-DRcurve = readmatrix("DRcurve.csv");
-d65 = readmatrix('illuminantd65.csv');d65 = d65(101:401,:);
-dataKey = readtable('dataKey.csv');
-fieldLeng = 0;
-for folders = 1:length(dataKey.FolderName)
-    files = dir([pwd,'/spectra_calibrated/',cell2mat(dataKey{folders,"FolderName"}),'/spectra/*.csv']);
-    numFiles = length(files(dataKey{folders,"FirstField"}:dataKey{folders,"LastField"}));
 
-    fieldFiles(fieldLeng+1:fieldLeng+numFiles) = files(dataKey{folders,"FirstField"}:dataKey{folders,"LastField"});
-    fieldLeng = numFiles+fieldLeng;
-end
-load('T_CIE_Y10.mat');
+fieldLeng = 10431;
+% for folders = 1:length(dataKey.FolderName)
+%     files = dir([pwd,'/spectra_calibrated/',cell2mat(dataKey{folders,"FolderName"}),'/spectra/*.csv']);
+%     numFiles = length(files(dataKey{folders,"FirstField"}:dataKey{folders,"LastField"}));
+% 
+%     fieldFiles(fieldLeng+1:fieldLeng+numFiles) = files(dataKey{folders,"FirstField"}:dataKey{folders,"LastField"});
+%     fieldLeng = numFiles+fieldLeng;
+% end
 T_CIE_Y10 = [T_CIE_Y10(:,11:311)];
 
-addpath('~/Documents/Github/AsanoObserverModel/')
+addpath('C:\Users\sponting\Documents\AsanoModel')
 age = 32;
 CF = generateConeFundamentals(age,10)';
 
@@ -34,7 +31,7 @@ mIrr = zeros(fieldLeng,2);
 mEDI = zeros(fieldLeng,2);
 % column 1 = unfiltered, column 2 = filtered
 
-spectra = load('spectrum.mat');spectrum = spectra.spectrum;
+spectrum = spectra.spectrum;
 filteredSpectrum = spectrum .* transmission;
 %calculate test lux
 lum(:,1) = spectrum'*T_CIE_Y10'*683.002;

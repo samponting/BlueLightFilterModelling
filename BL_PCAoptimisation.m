@@ -1,8 +1,7 @@
 
-T =readtable('opo12648-sup-0003-datas2.csv');
-
+T =readmatrix('opo12648-sup-0003-datas2.csv');
 for i = 2:121
-transmittance(:,i-1) = table2array(T(i,23:323))'/100;transmittance(isnan(transmittance)) = 0;
+transmittance(:,i-1) = T(i,23:323)'/100;transmittance(isnan(transmittance)) = 0;
 end
 % transmittance = transmittance(:,1:end-1);
 
@@ -29,8 +28,17 @@ ub = max(score(:,1:numVars));
 lb = min(score(:,1:numVars));
 wl = 400:700;
 
+DRcurve = readmatrix("DRcurve.csv");
+d65 = readmatrix('illuminantd65.csv');d65 = d65(101:401,:);
+dataKey = readtable('dataKey.csv');
+load('T_CIE_Y10.mat');
+vLam = readmatrix('linCIE2008v10e_1.csv');
+T_xyz = readmatrix('ciexyz64_1.csv');
+ref = readmatrix('99Reflectances.xlsx');
+spectra = load('spectrum.mat');
+
 optim = createOptimProblem('fmincon', ...
-    'objective',@(x)objfunc_PCAmaxCircValues(x,coeff(:,1:numVars),PCAmean),...
+    'objective',@(x)objfunc_PCAmaxCircValues(x,coeff(:,1:numVars),PCAmean,DRcurve,d65,dataKey,T_CIE_Y10,vLam,T_xyz,ref,spectra),...
     'x0', x0,'ub', ub,'lb', lb,...
     'options',optimoptions(@fmincon,'Algorithm','interior-point','Display','iter'));
 
